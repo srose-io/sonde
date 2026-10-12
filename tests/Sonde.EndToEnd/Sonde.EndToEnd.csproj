@@ -1,9 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- The real proof: launches the samples with the probe and evals into them. Marked EndToEnd so
+       the unit gate skips it; the e2e gate and every CI matrix cell run it. -->
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>Sonde.EndToEnd</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Sonde/Sonde.csproj" />
+    <!-- Build the samples with the suite, so a no-build test run finds them built. -->
+    <ProjectReference Include="../../samples/MinimalWeb/MinimalWeb.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../samples/Worker/Worker.csproj" ReferenceOutputAssembly="false" />
+    <Content Include="../Sonde.Tests/xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `samples/MinimalWeb` and `samples/Worker`, each with `scripts/*.cs` evals, and the
+  `Sonde.EndToEnd` suite that launches them with the probe and runs every script: the
+  environment route, the `dotnet watch` runtimeconfig route, a child that must not inherit the
+  probe, a second listener that must stay dormant, and an idle-cost measurement written to
+  `artifacts/idle-cost.json`.
 - `Sonde.Mcp` (command `sonde-mcp`): a stdio Model Context Protocol server with tools
   `sonde_list_targets`, `sonde_hello`, `sonde_status`, `sonde_eval` and the
   `sonde://script-surface` resource (ADR 0003).

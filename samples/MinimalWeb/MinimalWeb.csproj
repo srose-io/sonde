@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!-- A minimal ASP.NET app: one singleton with private state, one outbound HTTP call. Nothing
+       here knows about Sonde; the probe arrives through the launch environment. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+</Project>

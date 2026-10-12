@@ -3,32 +3,32 @@
   "verdict": "PASS",
   "tier": "full",
   "git": {
-    "sha": "3f582507cc15bb4257c38fd9199a4d36d9c56473",
+    "sha": "354ae6c04be768d179baa5013dd245001cef18f3",
     "dirty": true,
     "branch": "main",
-    "worktreeHash": "df1ec82b3999"
+    "worktreeHash": "4d9d263a4ba0"
   },
-  "startedAt": "2026-10-12T11:52:51.533Z",
-  "durationMs": 24293,
+  "startedAt": "2026-10-12T11:59:29.720Z",
+  "durationMs": 51493,
   "node": "nixos",
   "gates": [
     {
       "id": "build",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 2462
+      "durationMs": 2397
     },
     {
       "id": "unit",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 20578
+      "durationMs": 20384
     },
     {
       "id": "e2e",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 1238
+      "durationMs": 28698
     }
   ],
   "evidence": {

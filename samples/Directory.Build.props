@@ -1,0 +1,19 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Samples: small apps the README demo and the end-to-end suite launch with the probe. They
+       target the lowest supported runtime and roll forward, so one build runs on .NET 8, 9 and 10. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591: sample code is not a library; CA2007: an app, not a library, so ConfigureAwait is noise. -->
+    <NoWarn>$(NoWarn);CA1812;CA1515;CS1591;CA2007</NoWarn>
+  </PropertyGroup>
+
+  <!-- scripts/*.cs are Sonde scripts the e2e suite sends into the running app, not part of the app. -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);scripts/**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>
