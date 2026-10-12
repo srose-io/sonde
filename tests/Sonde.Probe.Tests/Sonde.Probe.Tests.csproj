@@ -5,5 +5,12 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Sonde.Probe/Sonde.Probe.csproj" />
+    <!-- Only the tests compile scripts in-process, to exercise EvalRunner; the probe never carries Roslyn. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <!-- The DI container itself, to prove root capture against a real ServiceProvider. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
