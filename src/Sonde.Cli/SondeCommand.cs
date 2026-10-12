@@ -20,6 +20,7 @@ internal static class SondeCommand
 
     public static RootCommand Build()
     {
+        NameTheExecutable("sonde");
         var root = new RootCommand("Run C# inside a live .NET process. Start the process with `sonde env` or `sonde run`, then `sonde eval` into it.");
         root.Add(EnvCommand());
         root.Add(RunCommand());
@@ -28,6 +29,19 @@ internal static class SondeCommand
         root.Add(EvalCommand());
         root.Add(ListCommand());
         return root;
+    }
+
+    /// <summary>
+    /// Help prints the usage line from the entry assembly's file name, which for a dotnet tool is
+    /// <c>Sonde.Cli.dll</c>, not the <c>sonde</c> command a person typed. System.CommandLine 2.0
+    /// has no public way to set it, so this writes its private cache; if a release renames the
+    /// field, help falls back to the assembly name and nothing else changes.
+    /// </summary>
+    private static void NameTheExecutable(string name)
+    {
+        var field = typeof(RootCommand).GetField("_executableName", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        if (field?.FieldType == typeof(string))
+            field.SetValue(null, name);
     }
 
     // --- env ---------------------------------------------------------------------------------

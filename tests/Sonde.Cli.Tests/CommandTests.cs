@@ -19,6 +19,7 @@ public class CommandTests(LoopbackFixture loopback) : IClassFixture<LoopbackFixt
     {
         var (code, output, _) = await RunAsync("--help");
         Assert.Equal(0, code);
+        Assert.Contains("Usage:\n  sonde [command]", output.ReplaceLineEndings("\n"), StringComparison.Ordinal);
         foreach (var command in new[] { "env", "run", "hello", "status", "eval", "ls" })
             Assert.Contains(command, output, StringComparison.Ordinal);
     }
