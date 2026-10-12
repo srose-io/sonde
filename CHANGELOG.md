@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `Sonde`: the client library. `ScriptCompiler` compiles a script against the target's loaded
+  assemblies and their siblings on disk; `ProbeClient` moves frames over a Unix socket or named
+  pipe; `Launch` builds the environment and the `dotnet watch` runtimeconfig template;
+  `SondeClient.EvalAsync` runs the whole hello, compile, run flow and answers with an
+  `EvalOutcome`.
 - `Sonde.Probe`: the in-process agent. A startup hook that scrubs its own environment, stays
   dormant without `SONDE_ENDPOINT`, passes SDK tooling through, never steals a live socket, runs
   each script in a collectible load context, refuses a second eval while one runs, and exposes

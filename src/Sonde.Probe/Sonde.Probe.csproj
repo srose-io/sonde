@@ -28,6 +28,10 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Sonde.Probe.Tests" />
+    <!-- The other suites start the listener in-process to drive the client end to end. -->
+    <InternalsVisibleTo Include="Sonde.Tests" />
+    <InternalsVisibleTo Include="Sonde.Cli.Tests" />
+    <InternalsVisibleTo Include="Sonde.Mcp.Tests" />
   </ItemGroup>
 
 </Project>

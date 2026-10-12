@@ -15,10 +15,14 @@ public static class SondeHost
     private const string NoRootMessage =
         "No DI root captured yet. Send one HTTP request to the host first, or have the host call SondeHost.Register(app.Services).";
 
+    // The captured scope factory and ambient scope are held as object so that touching this type
+    // (every Hello does, for DiRootCaptured) never forces Microsoft.Extensions.DependencyInjection
+    // .Abstractions to load. A host with no DI container must still answer. The casts live in the
+    // members only a script that asks for g.Services reaches.
     private static volatile bool _active;
     private static IServiceProvider? _explicitRoot;
-    private static IServiceScopeFactory? _capturedScopeFactory;
-    private static IServiceScope? _ambientScope;
+    private static object? _capturedScopeFactory;
+    private static object? _ambientScope;
     private static readonly object Gate = new();
     private static int _liveContexts;
 
@@ -71,10 +75,10 @@ public static class SondeHost
             {
                 if (_explicitRoot is not null)
                     return _explicitRoot;
-                if (_capturedScopeFactory is not null)
+                if (_capturedScopeFactory is IServiceScopeFactory factory)
                 {
-                    _ambientScope ??= _capturedScopeFactory.CreateScope();
-                    return _ambientScope.ServiceProvider;
+                    _ambientScope ??= factory.CreateScope();
+                    return ((IServiceScope)_ambientScope).ServiceProvider;
                 }
             }
             throw new InvalidOperationException(NoRootMessage);
@@ -89,8 +93,8 @@ public static class SondeHost
             return _explicitRoot.GetRequiredService<IServiceScopeFactory>().CreateScope();
         lock (Gate)
         {
-            if (_capturedScopeFactory is not null)
-                return _capturedScopeFactory.CreateScope();
+            if (_capturedScopeFactory is IServiceScopeFactory factory)
+                return factory.CreateScope();
         }
         throw new InvalidOperationException(NoRootMessage);
     }

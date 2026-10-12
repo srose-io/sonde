@@ -47,6 +47,15 @@ internal static class EvalRunner
             var context = new ScriptLoadContext();
             Volatile.Write(ref _lastContext, new WeakReference<AssemblyLoadContext>(context));
             SondeHost.IncrementLiveContexts();
+            bool released = false;
+            void Release()
+            {
+                if (released)
+                    return;
+                released = true;
+                TryUnload(context);
+                SondeHost.DecrementLiveContexts();
+            }
 
             try
             {
@@ -91,7 +100,9 @@ internal static class EvalRunner
 
                 stopwatch.Stop();
                 timeout.Dispose();
+                // Serialise before unloading: the result may be an instance of a script-defined type.
                 var node = ResultJson.Serialize(resultValue, request.MaxDepth);
+                Release();
                 return new RunResponse
                 {
                     Result = node,
@@ -103,19 +114,18 @@ internal static class EvalRunner
             catch (Exception ex)
             {
                 var inner = ex is TargetInvocationException { InnerException: { } cause } ? cause : ex;
+                var rendered = RenderException(inner);
+                Release();
                 return new RunResponse
                 {
-                    Exception = RenderException(inner),
+                    Exception = rendered,
                     LiveContexts = SondeHost.LiveContexts,
                 };
             }
             finally
             {
                 if (!slotHeldByRunaway)
-                {
-                    TryUnload(context);
-                    SondeHost.DecrementLiveContexts();
-                }
+                    Release();
             }
         }
         finally

@@ -1,1 +1,120 @@
 #nullable enable
+const Sonde.EvalOptions.DefaultTimeoutMs = 10000 -> int
+const Sonde.EvalOptions.MaxMaxDepth = 32 -> int
+const Sonde.EvalOptions.MaxTimeoutMs = 300000 -> int
+const Sonde.EvalOptions.MinTimeoutMs = 100 -> int
+const Sonde.Launch.EndpointVariable = "SONDE_ENDPOINT" -> string!
+const Sonde.Launch.HomeVariable = "SONDE_HOME" -> string!
+const Sonde.Launch.MaxSocketPathBytes = 107 -> int
+const Sonde.Launch.StartupHooksVariable = "DOTNET_STARTUP_HOOKS" -> string!
+const Sonde.Launch.UserRuntimeConfigVariable = "UserRuntimeConfig" -> string!
+const Sonde.ProbeAssembly.FileName = "Sonde.Probe.dll" -> string!
+const Sonde.ScriptCompiler.EntryMethodName = "Run" -> string!
+const Sonde.ScriptCompiler.EntryTypeName = "SondeScript" -> string!
+const Sonde.ScriptCompiler.MaxSiblingsPerDirectory = 2000 -> int
+override Sonde.EvalOptions.Equals(object? obj) -> bool
+override Sonde.EvalOptions.GetHashCode() -> int
+override Sonde.EvalOptions.ToString() -> string!
+override Sonde.EvalResult.Equals(object? obj) -> bool
+override Sonde.EvalResult.GetHashCode() -> int
+override Sonde.EvalResult.ToString() -> string!
+override Sonde.ScriptCompileResult.Equals(object? obj) -> bool
+override Sonde.ScriptCompileResult.GetHashCode() -> int
+override Sonde.ScriptCompileResult.ToString() -> string!
+override Sonde.ScriptDiagnostic.Equals(object? obj) -> bool
+override Sonde.ScriptDiagnostic.GetHashCode() -> int
+override Sonde.ScriptDiagnostic.ToString() -> string!
+Sonde.EvalOptions
+Sonde.EvalOptions.<Clone>$() -> Sonde.EvalOptions!
+Sonde.EvalOptions.Equals(Sonde.EvalOptions? other) -> bool
+Sonde.EvalOptions.EvalOptions() -> void
+Sonde.EvalOptions.MaxDepth.get -> int
+Sonde.EvalOptions.MaxDepth.init -> void
+Sonde.EvalOptions.TimeoutMs.get -> int
+Sonde.EvalOptions.TimeoutMs.init -> void
+Sonde.EvalOutcome
+Sonde.EvalOutcome.Busy = 4 -> Sonde.EvalOutcome
+Sonde.EvalOutcome.CompileFailed = 3 -> Sonde.EvalOutcome
+Sonde.EvalOutcome.Completed = 0 -> Sonde.EvalOutcome
+Sonde.EvalOutcome.ProtocolError = 6 -> Sonde.EvalOutcome
+Sonde.EvalOutcome.ScriptThrew = 1 -> Sonde.EvalOutcome
+Sonde.EvalOutcome.TimedOut = 2 -> Sonde.EvalOutcome
+Sonde.EvalOutcome.Unreachable = 5 -> Sonde.EvalOutcome
+Sonde.EvalResult
+Sonde.EvalResult.BusySinceUtc.get -> System.DateTimeOffset?
+Sonde.EvalResult.BusySinceUtc.init -> void
+Sonde.EvalResult.<Clone>$() -> Sonde.EvalResult!
+Sonde.EvalResult.Diagnostics.get -> System.Collections.Generic.IReadOnlyList<Sonde.ScriptDiagnostic!>!
+Sonde.EvalResult.Diagnostics.init -> void
+Sonde.EvalResult.ElapsedMs.get -> long
+Sonde.EvalResult.ElapsedMs.init -> void
+Sonde.EvalResult.Equals(Sonde.EvalResult? other) -> bool
+Sonde.EvalResult.Error.get -> string?
+Sonde.EvalResult.Error.init -> void
+Sonde.EvalResult.EvalResult() -> void
+Sonde.EvalResult.Exception.get -> string?
+Sonde.EvalResult.Exception.init -> void
+Sonde.EvalResult.LiveContexts.get -> int
+Sonde.EvalResult.LiveContexts.init -> void
+Sonde.EvalResult.Logs.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Sonde.EvalResult.Logs.init -> void
+Sonde.EvalResult.Outcome.get -> Sonde.EvalOutcome
+Sonde.EvalResult.Outcome.init -> void
+Sonde.EvalResult.Result.get -> System.Text.Json.Nodes.JsonNode?
+Sonde.EvalResult.Result.init -> void
+Sonde.Launch
+Sonde.ProbeAssembly
+Sonde.ProbeClient
+Sonde.ScriptCompiler
+Sonde.ScriptCompileResult
+Sonde.ScriptCompileResult.Assembly.get -> System.ReadOnlyMemory<byte>
+Sonde.ScriptCompileResult.<Clone>$() -> Sonde.ScriptCompileResult!
+Sonde.ScriptCompileResult.Diagnostics.get -> System.Collections.Generic.IReadOnlyList<Sonde.ScriptDiagnostic!>!
+Sonde.ScriptCompileResult.Equals(Sonde.ScriptCompileResult? other) -> bool
+Sonde.ScriptCompileResult.Success.get -> bool
+Sonde.ScriptDiagnostic
+Sonde.ScriptDiagnostic.<Clone>$() -> Sonde.ScriptDiagnostic!
+Sonde.ScriptDiagnostic.Column.get -> int
+Sonde.ScriptDiagnostic.Column.init -> void
+Sonde.ScriptDiagnostic.Deconstruct(out int Line, out int Column, out string! Id, out string! Message) -> void
+Sonde.ScriptDiagnostic.Equals(Sonde.ScriptDiagnostic? other) -> bool
+Sonde.ScriptDiagnostic.Id.get -> string!
+Sonde.ScriptDiagnostic.Id.init -> void
+Sonde.ScriptDiagnostic.Line.get -> int
+Sonde.ScriptDiagnostic.Line.init -> void
+Sonde.ScriptDiagnostic.Message.get -> string!
+Sonde.ScriptDiagnostic.Message.init -> void
+Sonde.ScriptDiagnostic.ScriptDiagnostic(int Line, int Column, string! Id, string! Message) -> void
+Sonde.SondeClient
+Sonde.SondeClient.Endpoint.get -> string!
+Sonde.SondeClient.EvalAsync(string! script, Sonde.EvalOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Sonde.EvalResult!>!
+Sonde.SondeClient.HelloAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Sonde.Probe.Protocol.HelloResponse!>!
+Sonde.SondeClient.SondeClient(string! endpoint, string? probeAssemblyPath) -> void
+Sonde.SondeClient.SondeClient(string! endpoint) -> void
+Sonde.SondeClient.StatusAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Sonde.Probe.Protocol.StatusResponse!>!
+Sonde.SondeUnreachableException
+Sonde.SondeUnreachableException.Endpoint.get -> string?
+Sonde.SondeUnreachableException.SondeUnreachableException(string! endpoint, string! reason, System.Exception? innerException) -> void
+Sonde.SondeUnreachableException.SondeUnreachableException(string! message, System.Exception? innerException) -> void
+Sonde.SondeUnreachableException.SondeUnreachableException(string! message) -> void
+Sonde.SondeUnreachableException.SondeUnreachableException() -> void
+static Sonde.EvalOptions.operator !=(Sonde.EvalOptions? left, Sonde.EvalOptions? right) -> bool
+static Sonde.EvalOptions.operator ==(Sonde.EvalOptions? left, Sonde.EvalOptions? right) -> bool
+static Sonde.EvalResult.operator !=(Sonde.EvalResult? left, Sonde.EvalResult? right) -> bool
+static Sonde.EvalResult.operator ==(Sonde.EvalResult? left, Sonde.EvalResult? right) -> bool
+static Sonde.Launch.ApplyEnvironment(System.Collections.Generic.IDictionary<string!, string?>! environment, string! endpoint, string? probeAssemblyPath = null, string? runtimeConfigTemplate = null) -> void
+static Sonde.Launch.EndpointFor(string! name) -> string!
+static Sonde.Launch.EndpointFor(string! name, string! homeDirectory, string! tempDirectory) -> string!
+static Sonde.Launch.HomeDirectory.get -> string!
+static Sonde.Launch.WriteRuntimeConfigTemplate(string! directory, string! name, string? probeAssemblyPath = null, string? projectDirectory = null) -> string?
+static Sonde.ProbeAssembly.Path.get -> string!
+static Sonde.ProbeClient.HelloAsync(string! endpoint, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Sonde.Probe.Protocol.HelloResponse?>!
+static Sonde.ProbeClient.IsListeningAsync(string! endpoint, System.TimeSpan timeout) -> System.Threading.Tasks.Task<bool>!
+static Sonde.ProbeClient.RunAsync(string! endpoint, Sonde.Probe.Protocol.ProbeRequest! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Sonde.Probe.Protocol.RunResponse?>!
+static Sonde.ProbeClient.StatusAsync(string! endpoint, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Sonde.Probe.Protocol.StatusResponse?>!
+static Sonde.ScriptCompiler.CachedReferenceCount.get -> int
+static Sonde.ScriptCompiler.Compile(string! script, System.Collections.Generic.IEnumerable<string!>! referencePaths, System.Collections.Generic.IEnumerable<string!>! referenceNames, string! probeAssemblyPath) -> Sonde.ScriptCompileResult!
+static Sonde.ScriptCompileResult.operator !=(Sonde.ScriptCompileResult? left, Sonde.ScriptCompileResult? right) -> bool
+static Sonde.ScriptCompileResult.operator ==(Sonde.ScriptCompileResult? left, Sonde.ScriptCompileResult? right) -> bool
+static Sonde.ScriptDiagnostic.operator !=(Sonde.ScriptDiagnostic? left, Sonde.ScriptDiagnostic? right) -> bool
+static Sonde.ScriptDiagnostic.operator ==(Sonde.ScriptDiagnostic? left, Sonde.ScriptDiagnostic? right) -> bool
