@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-12
+
+The first release: Sonde extracted from the in-house probe it was born as, with every scar a
+test, four packages, a CLI, an MCP server, samples, an end-to-end suite and a docs site.
+
 ### Added
 
 - Docs: README with the sixty-second demo (driven by the real CLI in the e2e suite) and a
@@ -32,3 +37,6 @@ All notable changes to this project are documented here. The format follows
 - Repository scaffolding: solution, shared build settings, analyzers with warnings as errors,
   central package versions, CI matrix (Linux, macOS, Windows × .NET 8, 9, 10), release workflow,
   issue and pull request templates, contributor guide, code of conduct, security policy.
+
+[Unreleased]: https://github.com/srose-io/sonde/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/srose-io/sonde/releases/tag/v0.1.0
