@@ -10,6 +10,8 @@
     <!-- Build the samples with the suite, so a no-build test run finds them built. -->
     <ProjectReference Include="../../samples/MinimalWeb/MinimalWeb.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="../../samples/Worker/Worker.csproj" ReferenceOutputAssembly="false" />
+    <!-- The README demo test runs the real CLI as a process. -->
+    <ProjectReference Include="../../src/Sonde.Cli/Sonde.Cli.csproj" ReferenceOutputAssembly="false" SetTargetFramework="TargetFramework=net9.0" />
     <Content Include="../Sonde.Tests/xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

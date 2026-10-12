@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": ["src/Sonde.Probe/Sonde.Probe.csproj", "src/Sonde/Sonde.csproj"]
+        }
+      ],
+      "dest": "docs/api",
+      "properties": { "TargetFramework": "net8.0" },
+      "includePrivateMembers": false,
+      "disableGitFeatures": false,
+      "namespaceLayout": "flattened"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": ["docs/**/*.{md,yml}"],
+        "exclude": ["docs/responses/**", "docs/plans/**", "docs/assets/**"]
+      }
+    ],
+    "resource": [
+      {
+        "files": ["docs/assets/**"]
+      }
+    ],
+    "output": "artifacts/site",
+    "globalMetadata": {
+      "_appTitle": "Sonde",
+      "_appName": "Sonde",
+      "_appFooter": "Sonde · MIT · <a href=\"https://github.com/srose-io/sonde\">GitHub</a>",
+      "_enableSearch": true
+    },
+    "template": ["default", "modern"],
+    "sitemap": { "baseUrl": "https://srose-io.github.io/sonde/" }
+  }
+}

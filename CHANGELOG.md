@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Docs: README with the sixty-second demo (driven by the real CLI in the e2e suite) and a
+  recording, `docs/architecture.md`, `docs/protocol.md`, `docs/script-surface.md`,
+  `docs/threat-model.md`, and a docfx site with the API reference published to GitHub Pages.
 - `samples/MinimalWeb` and `samples/Worker`, each with `scripts/*.cs` evals, and the
   `Sonde.EndToEnd` suite that launches them with the probe and runs every script: the
   environment route, the `dotnet watch` runtimeconfig route, a child that must not inherit the

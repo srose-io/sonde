@@ -49,11 +49,10 @@
     <None Include="$(MSBuildThisFileDirectory)docs/assets/icon.png" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 
-  <!-- Every packable project tracks its public surface in PublicAPI.Shipped.txt / PublicAPI.Unshipped.txt. -->
+  <!-- Every packable project tracks its public surface in PublicAPI.Shipped.txt / PublicAPI.Unshipped.txt
+       (the analyzer package adds both as AdditionalFiles itself). -->
   <ItemGroup Condition="'$(IsPackable)' == 'true'">
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
-    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
   </ItemGroup>
 
 </Project>

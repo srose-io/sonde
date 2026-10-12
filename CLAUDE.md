@@ -11,17 +11,26 @@ by how it reads to someone who has never seen Loom.
 
 ## Layout
 
-- `src/Sonde.Probe/` — the in-process agent. References nothing outside the shared framework
-  plus Lib.Harmony. Loaded through `DOTNET_STARTUP_HOOKS`. The `StartupHook` type stays in the
-  global namespace (the runtime looks for it by name).
-- `src/Sonde/` — the client library: Roslyn compiler, protocol client, launch helpers
-  (environment, runtimeconfig template for `dotnet watch`), result types.
-- `src/Sonde.Cli/` — the `sonde` dotnet tool.
-- `src/Sonde.Mcp/` — the MCP server, so any agent can use Sonde.
-- `tests/` — one test project per package plus `Sonde.EndToEnd` (launches `samples/` and evals
-  into them; this is the real proof).
-- `samples/` — a minimal ASP.NET app and a worker service, each with `scripts/*.cs` evals.
-- `docs/` — architecture, protocol spec, script surface, threat model, `decisions/` (ADRs).
+- `src/Sonde.Probe/` — the in-process agent (`net8.0`). References only the shared framework,
+  the DI abstractions (compile-time only, ADR 0002) and Lib.Harmony. Loaded through
+  `DOTNET_STARTUP_HOOKS`. The `StartupHook` type stays in the global namespace (the runtime
+  looks for it by name). `Protocol/` is the wire contract.
+- `src/Sonde/` — the client library: `ScriptCompiler` (Roslyn), `ProbeClient` (frames),
+  `Launch` (environment, endpoint naming, the runtimeconfig template for `dotnet watch`),
+  `Targets`, `SondeClient` (the whole eval flow, answering with an `EvalOutcome`).
+- `src/Sonde.Cli/` — the `sonde` dotnet tool (package `Sonde.Cli`; the id `sonde` would collide
+  with the `Sonde` library on NuGet).
+- `src/Sonde.Mcp/` — the `sonde-mcp` MCP server (ADR 0003). Embeds `docs/script-surface.md`.
+- `tests/` — one xunit project per package plus `Sonde.EndToEnd` (launches `samples/` as real
+  processes and evals into them; this is the real proof). `Sonde.Tests/LoopbackFixture.cs`
+  starts the listener in-process and is linked into the CLI and MCP suites.
+- `samples/` — `MinimalWeb` (ASP.NET) and `Worker` (no ASP.NET), each with `scripts/*.cs` the
+  e2e suite runs. They target `net8.0` and roll forward.
+- `docs/` — `architecture.md`, `protocol.md`, `script-surface.md`, `threat-model.md`,
+  `decisions/` (ADRs), `assets/` (icon, demo tape and GIF). `docfx.json` builds the site.
+- `scripts/update-public-api.sh <csproj>` — appends undeclared public symbols to
+  `PublicAPI.Unshipped.txt` from the build's RS0016 errors.
+- Build output is under `artifacts/` (`UseArtifactsOutput`): `artifacts/bin/<Project>/<config>[_<tfm>]/`.
 
 ## Rules
 
