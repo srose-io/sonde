@@ -112,7 +112,7 @@ public class LaunchTests
     {
         var endpoint = Launch.EndpointFor("my app/v2", "/home/u/.sonde", "/tmp");
         Assert.DoesNotContain(' ', endpoint);
-        Assert.EndsWith("my-app-v2.sock", endpoint, StringComparison.Ordinal);
+        Assert.EndsWith(OperatingSystem.IsWindows() ? "my-app-v2" : "my-app-v2.sock", endpoint, StringComparison.Ordinal);
     }
 
     private static string NewTempDirectory()
