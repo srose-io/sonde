@@ -172,21 +172,25 @@ public class StartupHookTests
     }
 
     [Theory]
-    [InlineData(8, "harmony/net8.0/0Harmony.dll")]
-    [InlineData(9, "harmony/net9.0/0Harmony.dll")]
-    [InlineData(10, "harmony/net10.0/0Harmony.dll")]
-    [InlineData(11, "harmony/net10.0/0Harmony.dll")]
-    public void HarmonyLocator_PicksTheHostsMajorOrTheNewestBelowIt(int major, string expected)
+    [InlineData(8, "net8.0")]
+    [InlineData(9, "net9.0")]
+    [InlineData(10, "net10.0")]
+    [InlineData(11, "net10.0")]
+    public void HarmonyLocator_PicksTheHostsMajorOrTheNewestBelowIt(int major, string expectedFlavour)
     {
-        var shipped = new HashSet<string> { "/p/harmony/net8.0/0Harmony.dll", "/p/harmony/net9.0/0Harmony.dll", "/p/harmony/net10.0/0Harmony.dll" };
-        Assert.Equal("/p/" + expected, HarmonyLocator.Pick("/p", major, shipped.Contains));
+        var dir = Path.Combine(Path.GetTempPath(), "p");
+        static string Flavour(string dir, string flavour) => Path.Combine(dir, "harmony", flavour, "0Harmony.dll");
+        var shipped = new HashSet<string>(StringComparer.Ordinal) { Flavour(dir, "net8.0"), Flavour(dir, "net9.0"), Flavour(dir, "net10.0") };
+        Assert.Equal(Flavour(dir, expectedFlavour), HarmonyLocator.Pick(dir, major, shipped.Contains));
     }
 
     [Fact]
     public void HarmonyLocator_FallsBackToABareCopyThenNull()
     {
-        Assert.Equal("/p/0Harmony.dll", HarmonyLocator.Pick("/p", 9, path => path == "/p/0Harmony.dll"));
-        Assert.Null(HarmonyLocator.Pick("/p", 9, _ => false));
+        var dir = Path.Combine(Path.GetTempPath(), "p");
+        var bare = Path.Combine(dir, "0Harmony.dll");
+        Assert.Equal(bare, HarmonyLocator.Pick(dir, 9, path => path == bare));
+        Assert.Null(HarmonyLocator.Pick(dir, 9, _ => false));
     }
 
     [Fact]

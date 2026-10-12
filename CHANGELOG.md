@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- The compiler skips a native library that sits beside a managed one as a `.dll` (Windows
+  frameworks ship `System.IO.Compression.Native.dll` that way); referencing it made every
+  script fail with CS0009 on Windows.
 - On Windows, connecting to a pipe that does not exist no longer polls for ever: the client
   checks the pipe exists and bounds the connect, so a missing probe is an answer, not a hang.
 - The probe ships Harmony's per-runtime builds (`harmony/net{8,9,10}.0/`) and loads the host's,

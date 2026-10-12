@@ -52,6 +52,12 @@ public class ToolTests(LoopbackFixture loopback) : IClassFixture<LoopbackFixture
         Directory.CreateDirectory(home);
         Environment.SetEnvironmentVariable(Launch.HomeVariable, home);
         var json = JsonNode.Parse(await SondeTools.ListTargetsAsync(CancellationToken.None))!;
+        if (OperatingSystem.IsWindows())
+        {
+            // Pipes are machine-wide, so the fixtures' own test pipes show up; each must be live.
+            Assert.All(json.AsArray(), row => Assert.True(row!["listening"]!.GetValue<bool>()));
+            return;
+        }
         Assert.Empty(json.AsArray());
     }
 

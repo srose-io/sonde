@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -129,7 +130,10 @@ public static class ScriptCompiler
         MetadataReference? reference;
         try
         {
-            reference = MetadataReference.CreateFromFile(path);
+            // A native library is a .dll on Windows too (System.IO.Compression.Native.dll beside
+            // the framework), and CreateFromFile accepts it only to fail later with CS0009.
+            // Reference only a PE that carries CLI metadata.
+            reference = IsManagedAssembly(path) ? MetadataReference.CreateFromFile(path) : null;
         }
         catch (Exception ex) when (ex is BadImageFormatException or IOException or UnauthorizedAccessException)
         {
@@ -137,6 +141,21 @@ public static class ScriptCompiler
         }
         ReferenceCache[path] = (info.LastWriteTimeUtc, info.Length, reference);
         return reference;
+    }
+
+    /// <summary>True when <paramref name="path"/> is a PE file with CLI metadata.</summary>
+    public static bool IsManagedAssembly(string path)
+    {
+        try
+        {
+            using var stream = File.OpenRead(path);
+            using var reader = new PEReader(stream);
+            return reader.HasMetadata;
+        }
+        catch (Exception ex) when (ex is BadImageFormatException or IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            return false;
+        }
     }
 
     private static List<MetadataReference> ResolveReferences(
