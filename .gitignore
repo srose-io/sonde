@@ -9,3 +9,5 @@ artifacts/
 .loom/verify-state/
 artifacts/
 docs/api/
+.loom/last-verdict.json
+.loom/verdicts.log
