@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- On Windows, connecting to a pipe that does not exist no longer polls for ever: the client
+  checks the pipe exists and bounds the connect, so a missing probe is an answer, not a hang.
 - The probe ships Harmony's per-runtime builds (`harmony/net{8,9,10}.0/`) and loads the host's,
   instead of whichever single copy the consuming project's target framework happened to pull in;
   a .NET 8 host given the net9.0 copy could not load it and the probe stayed dormant.

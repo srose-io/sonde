@@ -19,6 +19,7 @@ jobs:
   build-test:
     name: ${{ matrix.os }} / .NET ${{ matrix.dotnet }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
