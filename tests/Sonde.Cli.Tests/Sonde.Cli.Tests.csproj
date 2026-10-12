@@ -5,5 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Sonde.Cli/Sonde.Cli.csproj" />
+    <!-- The in-process listener fixture is shared with the client tests. -->
+    <Compile Include="../Sonde.Tests/LoopbackFixture.cs" Link="LoopbackFixture.cs" />
+    <Content Include="../Sonde.Tests/xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
