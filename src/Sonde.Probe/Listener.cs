@@ -91,6 +91,16 @@ internal static class Listener
     [SupportedOSPlatform("windows")]
     private static async Task ServeNamedPipeAsync(string pipeName, CancellationToken cancellationToken)
     {
+        // Windows lets a second process add server instances to a pipe name that another process
+        // already serves, so the socket rule needs stating here too: a pipe that already exists
+        // belongs to a live probe (the host's own, if this is a child that got the endpoint by
+        // mistake). Leave it alone and go quiet.
+        if (File.Exists(@"\\.\pipe\" + pipeName))
+        {
+            Bootstrap.Log($"another probe already listens on pipe {pipeName}; this process will not serve it.");
+            return;
+        }
+
         while (!cancellationToken.IsCancellationRequested)
         {
             var server = new NamedPipeServerStream(

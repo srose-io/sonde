@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- On Windows, a probe given a pipe name another probe already serves stays dormant, as it does
+  for a Unix socket; before, both answered on the same name.
 - The compiler skips a native library that sits beside a managed one as a `.dll` (Windows
   frameworks ship `System.IO.Compression.Native.dll` that way); referencing it made every
   script fail with CS0009 on Windows.
