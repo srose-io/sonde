@@ -95,7 +95,7 @@ internal static class Listener
         // already serves, so the socket rule needs stating here too: a pipe that already exists
         // belongs to a live probe (the host's own, if this is a child that got the endpoint by
         // mistake). Leave it alone and go quiet.
-        if (File.Exists(@"\\.\pipe\" + pipeName))
+        if (PipeExists(pipeName))
         {
             Bootstrap.Log($"another probe already listens on pipe {pipeName}; this process will not serve it.");
             return;
@@ -115,7 +115,31 @@ internal static class Listener
                 await server.DisposeAsync().ConfigureAwait(false);
                 break;
             }
+            catch (IOException)
+            {
+                // A client connected and went away before the accept completed ("the pipe is
+                // being closed"). Not a reason to stop listening: drop this instance, open the next.
+                await server.DisposeAsync().ConfigureAwait(false);
+                await Task.Delay(20, cancellationToken).ConfigureAwait(false);
+                continue;
+            }
             _ = HandleConnectionAsync(server, cancellationToken);
+        }
+    }
+
+    /// <summary>True when a pipe of that name exists, busy or not. Enumerating the pipe directory
+    /// sees a pipe whose only instance is mid-connection, where <c>File.Exists</c> does not.</summary>
+    [SupportedOSPlatform("windows")]
+    internal static bool PipeExists(string pipeName)
+    {
+        try
+        {
+            return Directory.EnumerateFiles(@"\\.\pipe\")
+                .Any(p => string.Equals(Path.GetFileName(p), pipeName, StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
         }
     }
 

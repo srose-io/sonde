@@ -66,6 +66,20 @@ public static class ProbeClient
         return new NetworkStream(socket, ownsSocket: true);
     }
 
+    [SupportedOSPlatform("windows")]
+    private static bool PipeExists(string pipeName)
+    {
+        try
+        {
+            return Directory.EnumerateFiles(@"\\.\pipe\")
+                .Any(p => string.Equals(Path.GetFileName(p), pipeName, StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
     /// <summary>How long a pipe connect may take: a listening pipe accepts at once.</summary>
     private static readonly TimeSpan PipeConnectTimeout = TimeSpan.FromSeconds(5);
 
@@ -73,9 +87,10 @@ public static class ProbeClient
     private static async Task<Stream> ConnectPipeAsync(string pipeName, CancellationToken cancellationToken)
     {
         // NamedPipeClientStream.Connect with no timeout polls for ever when the pipe does not
-        // exist, where a Unix socket connect fails at once. Check the pipe exists, then bound the
-        // connect, so a missing probe is an answer rather than a hang.
-        if (!File.Exists(@"\\.\pipe\" + pipeName))
+        // exist, where a Unix socket connect fails at once. Check the pipe exists (by enumerating
+        // the pipe directory: File.Exists reports a pipe whose only instance is mid-connection as
+        // absent), then bound the connect, so a missing probe is an answer rather than a hang.
+        if (!PipeExists(pipeName))
             throw new FileNotFoundException($"No pipe named {pipeName}.", pipeName);
 
         var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);

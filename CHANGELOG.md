@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- On Windows, the pipe listener survives a client that connects and leaves before the accept
+  completes; before, that stopped the listener for the life of the process.
 - On Windows, a probe given a pipe name another probe already serves stays dormant, as it does
   for a Unix socket; before, both answered on the same name.
 - The compiler skips a native library that sits beside a managed one as a `.dll` (Windows
