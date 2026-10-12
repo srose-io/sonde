@@ -75,10 +75,10 @@ Windows) and waits. The client compiles your script out of process against the e
 the target reports, sends the bytes, and the probe runs them in a collectible
 `AssemblyLoadContext` and unloads afterwards. Roslyn never enters your process.
 
-**Idle cost**, measured by the end-to-end suite on every CI run (the Worker sample, this
-machine): **about 25 MB of resident memory and 3 threads** for a probe that has answered once
-and is now waiting. The number comes from `artifacts/idle-cost.json`; CI prints it in the job
-summary.
+**Idle cost**, measured by the end-to-end suite on every CI cell (the Worker sample, a probe
+that has answered once and is now waiting): **22 to 28 MB of resident memory and 3 to 5 threads**
+across Linux, macOS and Windows on .NET 8, 9 and 10. The number comes from
+`artifacts/idle-cost.json`; CI prints it in each job's summary.
 
 [docs/architecture.md](docs/architecture.md) has the whole picture, including what the CLR does
 and does not allow and why the design looks like this.

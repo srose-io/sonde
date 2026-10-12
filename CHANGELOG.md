@@ -6,7 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-### Fixed
+## [0.1.0] - 2026-10-12
+
+The first release: Sonde extracted from the in-house probe it was born as, with every scar a
+test, four packages, a CLI, an MCP server, samples, an end-to-end suite and a docs site.
+
+### Fixed (found by the first CI matrix run, before any package was published)
 
 - On Windows, the pipe listener survives a client that connects and leaves before the accept
   completes; before, that stopped the listener for the life of the process.
@@ -26,11 +31,6 @@ All notable changes to this project are documented here. The format follows
 - Test suites run on the CI cell's runtime (`SondeTestTfm`), and the end-to-end suite pins the
   samples to that runtime through a runtimeconfig override rather than guessing from the
   environment; the first run on the 9 cell had silently tested .NET 10.
-
-## [0.1.0] - 2026-10-12
-
-The first release: Sonde extracted from the in-house probe it was born as, with every scar a
-test, four packages, a CLI, an MCP server, samples, an end-to-end suite and a docs site.
 
 ### Added
 
