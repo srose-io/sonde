@@ -118,3 +118,22 @@ static Sonde.ScriptCompileResult.operator !=(Sonde.ScriptCompileResult? left, So
 static Sonde.ScriptCompileResult.operator ==(Sonde.ScriptCompileResult? left, Sonde.ScriptCompileResult? right) -> bool
 static Sonde.ScriptDiagnostic.operator !=(Sonde.ScriptDiagnostic? left, Sonde.ScriptDiagnostic? right) -> bool
 static Sonde.ScriptDiagnostic.operator ==(Sonde.ScriptDiagnostic? left, Sonde.ScriptDiagnostic? right) -> bool
+override Sonde.TargetInfo.Equals(object? obj) -> bool
+override Sonde.TargetInfo.GetHashCode() -> int
+override Sonde.TargetInfo.ToString() -> string!
+Sonde.TargetInfo
+Sonde.TargetInfo.<Clone>$() -> Sonde.TargetInfo!
+Sonde.TargetInfo.Deconstruct(out string! Name, out string! Endpoint, out bool Listening) -> void
+Sonde.TargetInfo.Endpoint.get -> string!
+Sonde.TargetInfo.Endpoint.init -> void
+Sonde.TargetInfo.Equals(Sonde.TargetInfo? other) -> bool
+Sonde.TargetInfo.Listening.get -> bool
+Sonde.TargetInfo.Listening.init -> void
+Sonde.TargetInfo.Name.get -> string!
+Sonde.TargetInfo.Name.init -> void
+Sonde.TargetInfo.TargetInfo(string! Name, string! Endpoint, bool Listening) -> void
+Sonde.Targets
+static Sonde.TargetInfo.operator !=(Sonde.TargetInfo? left, Sonde.TargetInfo? right) -> bool
+static Sonde.TargetInfo.operator ==(Sonde.TargetInfo? left, Sonde.TargetInfo? right) -> bool
+static Sonde.Targets.ListAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Sonde.TargetInfo!>!>!
+static Sonde.Targets.Resolve(string! target) -> string!

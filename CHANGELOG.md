@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `Sonde.Mcp` (command `sonde-mcp`): a stdio Model Context Protocol server with tools
+  `sonde_list_targets`, `sonde_hello`, `sonde_status`, `sonde_eval` and the
+  `sonde://script-surface` resource (ADR 0003).
 - `Sonde`: the client library. `ScriptCompiler` compiles a script against the target's loaded
   assemblies and their siblings on disk; `ProbeClient` moves frames over a Unix socket or named
   pipe; `Launch` builds the environment and the `dotnet watch` runtimeconfig template;

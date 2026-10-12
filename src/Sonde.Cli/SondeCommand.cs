@@ -265,8 +265,8 @@ internal static class SondeCommand
             if (parse.GetValue(json))
             {
                 var array = new JsonArray();
-                foreach (var (name, endpoint, listening) in targets)
-                    array.Add(new JsonObject { ["name"] = name, ["endpoint"] = endpoint, ["listening"] = listening });
+                foreach (var target in targets)
+                    array.Add(new JsonObject { ["name"] = target.Name, ["endpoint"] = target.Endpoint, ["listening"] = target.Listening });
                 output.WriteLine(array.ToJsonString(Pretty));
                 return ExitCode.Ok;
             }
@@ -275,8 +275,8 @@ internal static class SondeCommand
                 output.WriteLine($"No endpoints under {Launch.HomeDirectory}. Launch something with `sonde run` or `sonde env` first.");
                 return ExitCode.Ok;
             }
-            foreach (var (name, endpoint, listening) in targets)
-                output.WriteLine($"{(listening ? "up  " : "down")}  {name}  {endpoint}");
+            foreach (var target in targets)
+                output.WriteLine($"{(target.Listening ? "up  " : "down")}  {target.Name}  {target.Endpoint}");
             return ExitCode.Ok;
         });
         return command;

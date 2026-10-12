@@ -16,7 +16,13 @@
 
   <ItemGroup>
     <PackageReference Include="ModelContextProtocol" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
     <ProjectReference Include="../Sonde/Sonde.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The script surface the server offers as a resource is the same document the docs site shows. -->
+    <EmbeddedResource Include="../../docs/script-surface.md" LogicalName="script-surface.md" />
   </ItemGroup>
 
   <ItemGroup>

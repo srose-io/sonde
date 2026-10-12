@@ -5,5 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Sonde.Mcp/Sonde.Mcp.csproj" />
+    <PackageReference Include="ModelContextProtocol" />
+    <Compile Include="../Sonde.Tests/LoopbackFixture.cs" Link="LoopbackFixture.cs" />
+    <Content Include="../Sonde.Tests/xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
