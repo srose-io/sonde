@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Sonde: the client library. Compiles a script out of process with Roslyn, talks the wire
+       protocol to a probe, and knows how to launch a process so the probe is loaded. -->
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <RootNamespace>Sonde</RootNamespace>
+    <AssemblyName>Sonde</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>Sonde</PackageId>
+    <Description>Run C# inside a live .NET process: compile a script, send it to a Sonde probe, get JSON back.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <ProjectReference Include="../Sonde.Probe/Sonde.Probe.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sonde.Tests" />
+  </ItemGroup>
+
+</Project>

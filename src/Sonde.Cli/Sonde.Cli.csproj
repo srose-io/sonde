@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- sonde: the dotnet tool. `dotnet tool install -g Sonde.Cli`. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <RootNamespace>Sonde.Cli</RootNamespace>
+    <!-- The assembly cannot be "sonde": deps.json keys are case-insensitive and the Sonde library is a dependency. The command name is still `sonde`. -->
+    <AssemblyName>Sonde.Cli</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>sonde</ToolCommandName>
+    <!-- NuGet ids are case-insensitive, so the tool cannot be "sonde" beside the "Sonde" library. -->
+    <PackageId>Sonde.Cli</PackageId>
+    <Description>Command-line front door to Sonde: launch a process with the probe, then eval C# inside it.</Description>
+    <RollForward>Major</RollForward>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+    <ProjectReference Include="../Sonde/Sonde.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sonde.Cli.Tests" />
+  </ItemGroup>
+
+</Project>

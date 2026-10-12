@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Sonde.Probe: the in-process agent. Loaded into a .NET process through DOTNET_STARTUP_HOOKS,
+       it opens a local listener and runs compiled scripts the client sends in. It targets the
+       lowest supported host (net8.0) because a hook built for 8 loads into 9 and 10 hosts and the
+       reverse does not. See docs/decisions/0002-probe-dependencies.md. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Sonde.Probe</RootNamespace>
+    <AssemblyName>Sonde.Probe</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>Sonde.Probe</PackageId>
+    <Description>The Sonde in-process agent: a startup hook that runs compiled C# inside a live .NET process over a local socket.</Description>
+    <!-- Ship 0Harmony.dll beside Sonde.Probe.dll: the agent loads it from its own directory, never
+         the host's, so the host need not reference Harmony. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- The hook is loaded by path, not referenced; make the package a runtime payload, not a
+         compile reference, so a host that references it for SondeHost.Register still works. -->
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" />
+    <!-- Compile against the DI abstractions but never ship them: the agent binds to whichever
+         copy the host already loaded, in a web app or a worker service alike. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sonde.Probe.Tests" />
+  </ItemGroup>
+
+</Project>

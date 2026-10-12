@@ -1,0 +1,35 @@
+name: Bug report
+description: Something Sonde does wrong.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran, what you expected, what you got. Paste the exact command and the JSON or error that came back.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Sonde version
+      placeholder: "`sonde --version`"
+    validations:
+      required: true
+  - type: input
+    id: runtime
+    attributes:
+      label: Target process runtime and OS
+      placeholder: ".NET 9.0.4 on Ubuntu 24.04 / Windows 11 / macOS 15"
+    validations:
+      required: true
+  - type: textarea
+    id: script
+    attributes:
+      label: The script, if there is one
+      render: csharp
+  - type: textarea
+    id: hostlog
+    attributes:
+      label: Anything the target wrote to stderr with a `[Sonde]` prefix
+      render: text

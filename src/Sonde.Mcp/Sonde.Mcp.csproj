@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Sonde.Mcp: a stdio MCP server so any agent can use Sonde. `dotnet tool install -g Sonde.Mcp`. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <RootNamespace>Sonde.Mcp</RootNamespace>
+    <AssemblyName>Sonde.Mcp</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>sonde-mcp</ToolCommandName>
+    <PackageId>Sonde.Mcp</PackageId>
+    <Description>A Model Context Protocol server that lets an agent eval C# inside a live .NET process through Sonde.</Description>
+    <RollForward>Major</RollForward>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <ProjectReference Include="../Sonde/Sonde.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sonde.Mcp.Tests" />
+  </ItemGroup>
+
+</Project>

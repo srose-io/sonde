@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags-ignore: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build-test:
+    name: ${{ matrix.os }} / .NET ${{ matrix.dotnet }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        dotnet: ['8.0.x', '9.0.x', '10.0.x']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # SourceLink needs the history
+
+      # The repo builds with the 9 SDK (global.json rolls forward to any newer major); the
+      # matrix's runtime is what the samples and the probe are launched on in the e2e suite.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            ${{ matrix.dotnet }}
+
+      - name: Restore
+        run: dotnet restore Sonde.sln
+
+      - name: Build
+        run: dotnet build Sonde.sln --no-restore -c Release -warnaserror -p:ContinuousIntegrationBuild=true
+
+      - name: Unit tests
+        run: dotnet test Sonde.sln --no-build -c Release --filter "Category!=EndToEnd" --logger "trx;LogFileName=unit.trx" --results-directory artifacts/test-results
+
+      - name: End-to-end tests
+        env:
+          # The samples run on the matrix runtime, not the build SDK's.
+          SONDE_E2E_RUNTIME: ${{ matrix.dotnet }}
+        run: dotnet test tests/Sonde.EndToEnd --no-build -c Release --logger "trx;LogFileName=e2e.trx" --results-directory artifacts/test-results
+
+      - name: Idle cost
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/idle-cost.json ]; then
+            echo '### Idle cost (${{ matrix.os }}, .NET ${{ matrix.dotnet }})' >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat artifacts/idle-cost.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.dotnet }}
+          path: |
+            artifacts/test-results
+            artifacts/idle-cost.json
+          if-no-files-found: ignore
+
+  pack:
+    name: Pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Pack
+        run: dotnet pack Sonde.sln -c Release -p:ContinuousIntegrationBuild=true -o artifacts/package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: artifacts/package/*.nupkg

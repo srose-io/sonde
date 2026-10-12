@@ -4,19 +4,19 @@
     {
       "id": "build",
       "tier": "fast",
-      "run": "test -f Sonde.sln && dotnet build Sonde.sln -warnaserror --nologo -v q || { echo 'no solution yet: scaffold src/ first'; exit 0; }",
+      "run": "dotnet build Sonde.sln -warnaserror --nologo -v q",
       "timeoutSeconds": 600
     },
     {
       "id": "unit",
       "tier": "full",
-      "run": "test -f Sonde.sln && dotnet test Sonde.sln --no-build --nologo --filter 'Category!=EndToEnd' || { echo 'no solution yet'; exit 0; }",
+      "run": "dotnet test Sonde.sln --no-build --nologo --filter 'Category!=EndToEnd'",
       "timeoutSeconds": 900
     },
     {
       "id": "e2e",
       "tier": "full",
-      "run": "test -d tests/Sonde.EndToEnd && dotnet test tests/Sonde.EndToEnd --nologo || { echo 'no e2e suite yet'; exit 0; }",
+      "run": "dotnet test tests/Sonde.EndToEnd --no-build --nologo",
       "timeoutSeconds": 1200
     }
   ]
