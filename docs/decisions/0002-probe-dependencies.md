@@ -24,13 +24,19 @@ carry that framework.
   shared framework's in a web app, the app-local NuGet copy in a worker service. A host with no DI
   at all never resolves the types, and every member that would touch them is reached only by a
   script that asks for `g.Services`.
-- **Ship `0Harmony.dll` beside `Sonde.Probe.dll`** (`CopyLocalLockFileAssemblies`) and resolve it
-  from the probe's own directory through a `Default` load-context `Resolving` handler. The host
-  never references Harmony, and a host that carries its own Harmony is not disturbed because the
-  handler only answers when nothing else resolved the name.
-- **Nothing else.** A test (`Probe_ShipsHarmonyBesideItselfAndNothingElse`) asserts the referenced
-  assembly list is the shared framework, the DI abstractions and Harmony, and that `0Harmony.dll`
-  is on disk beside the probe.
+- **Ship Harmony's own per-runtime builds with the probe** under `harmony/net8.0/`,
+  `harmony/net9.0/` and `harmony/net10.0/` beside `Sonde.Probe.dll`, and pick the host's at load
+  time (`HarmonyLocator`: the host's major, else the newest below it). The `Lib.Harmony` package
+  reference is private to the probe (`PrivateAssets="all"`), so nothing about Harmony flows to a
+  consumer through NuGet; a `buildTransitive` targets file copies the folder into the consumer's
+  output. The first CI run showed why: a net9.0 consumer (the CLI, the test suites) received the
+  package's net9.0 Harmony beside the probe, and a .NET 8 host could not load it, so the hook
+  logged `initialize failed` and the probe stayed dormant. The host never references Harmony; a
+  `Default` load-context `Resolving` handler, registered from the probe's module initializer,
+  answers only for `0Harmony` and only when nothing else resolved it.
+- **Nothing else.** A test (`Probe_ShipsHarmonyPerRuntimeAndNothingElse`) asserts the referenced
+  assembly list is the shared framework, the DI abstractions and Harmony, and that the three
+  Harmony builds are on disk under `harmony/`.
 
 ## Consequences
 

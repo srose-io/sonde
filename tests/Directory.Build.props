@@ -2,7 +2,11 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
   <!-- Test projects: xunit, no docs warnings, no packing. -->
+  <!-- Every suite runs on one runtime, net9.0 by default; CI passes -p:SondeTestTfm=net8.0 or
+       net10.0 so the matrix cell's runtime is the one the tests and the samples actually run on. -->
   <PropertyGroup>
+    <SondeTestTfm Condition="'$(SondeTestTfm)' == ''">net9.0</SondeTestTfm>
+    <TargetFramework>$(SondeTestTfm)</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <!-- Docs stay on so IDE0005 (unused usings) runs; CS1591 (missing XML doc) is silenced for tests. -->

@@ -152,29 +152,66 @@ public class StartupHookTests
     }
 
     [Fact]
-    public void Harmony_IsAtLeast_2_4_2()
+    public void Harmony_IsAtLeast_2_4_2_AndIsTheBuildForThisRuntime()
     {
-        var harmony = typeof(HarmonyLib.Harmony).Assembly;
-        var version = harmony.GetName().Version;
+        // Force Harmony to load through the probe's resolver, then inspect what was loaded.
+        var g = new ScriptGlobals([], CancellationToken.None);
+        var handle = g.Hook<HookProbe>(nameof(HookProbe.Touch), postfix: _ => { });
+        g.Unhook(handle);
+
+        var harmony = AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "0Harmony");
         var informational = harmony.GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion;
-        var effective = Version.TryParse(informational?.Split('+', '-')[0], out var parsed) ? parsed : version;
+        var effective = Version.TryParse(informational?.Split('+', '-')[0], out var parsed) ? parsed : harmony.GetName().Version;
         Assert.NotNull(effective);
         Assert.True(effective >= new Version(2, 4, 2), $"Lib.Harmony {effective} is older than 2.4.2, which throws on CoreCLR 10.");
+
+        var expected = Path.Combine("harmony", $"net{Environment.Version.Major}.0", "0Harmony.dll");
+        Assert.EndsWith(expected, harmony.Location, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(8, "harmony/net8.0/0Harmony.dll")]
+    [InlineData(9, "harmony/net9.0/0Harmony.dll")]
+    [InlineData(10, "harmony/net10.0/0Harmony.dll")]
+    [InlineData(11, "harmony/net10.0/0Harmony.dll")]
+    public void HarmonyLocator_PicksTheHostsMajorOrTheNewestBelowIt(int major, string expected)
+    {
+        var shipped = new HashSet<string> { "/p/harmony/net8.0/0Harmony.dll", "/p/harmony/net9.0/0Harmony.dll", "/p/harmony/net10.0/0Harmony.dll" };
+        Assert.Equal("/p/" + expected, HarmonyLocator.Pick("/p", major, shipped.Contains));
     }
 
     [Fact]
-    public void Probe_ShipsHarmonyBesideItselfAndNothingElse()
+    public void HarmonyLocator_FallsBackToABareCopyThenNull()
+    {
+        Assert.Equal("/p/0Harmony.dll", HarmonyLocator.Pick("/p", 9, path => path == "/p/0Harmony.dll"));
+        Assert.Null(HarmonyLocator.Pick("/p", 9, _ => false));
+    }
+
+    [Fact]
+    public void Probe_ShipsHarmonyPerRuntimeAndNothingElse()
     {
         // The agent references only the shared framework plus Harmony; the DI abstractions it
-        // compiles against come from the host at runtime and must not be shipped.
+        // compiles against come from the host at runtime and must not be shipped. Harmony ships
+        // as its own per-runtime builds so a host on 8, 9 or 10 loads the one made for it.
         var dir = Path.GetDirectoryName(typeof(SondeHost).Assembly.Location)!;
-        Assert.True(File.Exists(Path.Combine(dir, "0Harmony.dll")), "0Harmony.dll must ship beside Sonde.Probe.dll");
+        foreach (var major in new[] { 8, 9, 10 })
+            Assert.True(File.Exists(Path.Combine(dir, "harmony", $"net{major}.0", "0Harmony.dll")), $"harmony/net{major}.0/0Harmony.dll must ship beside Sonde.Probe.dll");
+        Assert.False(File.Exists(Path.Combine(dir, "Microsoft.Extensions.DependencyInjection.Abstractions.dll")) && !File.Exists(Path.Combine(dir, "Microsoft.Extensions.DependencyInjection.dll")),
+            "the DI abstractions must not ship with the probe");
         var referenced = typeof(SondeHost).Assembly.GetReferencedAssemblies().Select(a => a.Name).ToArray();
         var allowed = new[] { "System.", "Microsoft.Extensions.DependencyInjection.Abstractions", "0Harmony", "netstandard", "mscorlib" };
         foreach (var name in referenced)
             Assert.True(allowed.Any(prefix => name!.StartsWith(prefix, StringComparison.Ordinal)), $"Sonde.Probe references {name}");
+    }
+
+    public sealed class HookProbe
+    {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        public static void Touch()
+        {
+        }
     }
 
     private static string TempSocketPath() =>

@@ -24,13 +24,21 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         dotnet: ['8.0.x', '9.0.x', '10.0.x']
+        include:
+          - dotnet: '8.0.x'
+            tfm: net8.0
+          - dotnet: '9.0.x'
+            tfm: net9.0
+          - dotnet: '10.0.x'
+            tfm: net10.0
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # SourceLink needs the history
 
-      # The repo builds with the 9 SDK (global.json rolls forward to any newer major); the
-      # matrix's runtime is what the samples and the probe are launched on in the e2e suite.
+      # The repo builds with the 9 SDK or newer (global.json rolls forward); the test projects
+      # target the cell's TFM (SondeTestTfm), so the suites and the samples they launch run on
+      # the cell's runtime whatever else the image has installed.
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
@@ -38,19 +46,16 @@ jobs:
             ${{ matrix.dotnet }}
 
       - name: Restore
-        run: dotnet restore Sonde.sln
+        run: dotnet restore Sonde.sln -p:SondeTestTfm=${{ matrix.tfm }}
 
       - name: Build
-        run: dotnet build Sonde.sln --no-restore -c Release -warnaserror -p:ContinuousIntegrationBuild=true
+        run: dotnet build Sonde.sln --no-restore -c Release -warnaserror -p:ContinuousIntegrationBuild=true -p:SondeTestTfm=${{ matrix.tfm }}
 
       - name: Unit tests
-        run: dotnet test Sonde.sln --no-build -c Release --filter "Category!=EndToEnd" --logger "trx;LogFileName=unit.trx" --results-directory artifacts/test-results
+        run: dotnet test Sonde.sln --no-build -c Release -p:SondeTestTfm=${{ matrix.tfm }} --filter "Category!=EndToEnd" --logger "trx;LogFileName=unit.trx" --results-directory artifacts/test-results
 
       - name: End-to-end tests
-        env:
-          # The samples run on the matrix runtime, not the build SDK's.
-          SONDE_E2E_RUNTIME: ${{ matrix.dotnet }}
-        run: dotnet test tests/Sonde.EndToEnd --no-build -c Release --logger "trx;LogFileName=e2e.trx" --results-directory artifacts/test-results
+        run: dotnet test tests/Sonde.EndToEnd --no-build -c Release -p:SondeTestTfm=${{ matrix.tfm }} --logger "trx;LogFileName=e2e.trx" --results-directory artifacts/test-results
 
       - name: Idle cost
         if: always()

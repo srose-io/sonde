@@ -8,8 +8,20 @@ namespace Sonde.EndToEnd;
 public sealed class CliDemoTests : IAsyncLifetime
 {
     private readonly string _home = Path.Combine(Path.GetTempPath(), "sonde-demo-home-" + Guid.NewGuid().ToString("N")[..8]);
+    private readonly StringBuilder _runOutput = new();
     private Process _run = null!;
     private string _endpoint = null!;
+
+    private string RunOutput
+    {
+        get
+        {
+            lock (_runOutput)
+            {
+                return _runOutput.ToString();
+            }
+        }
+    }
 
     private static string CliDll =>
         Path.Combine(Repo.Root, "artifacts", "bin", "Sonde.Cli", Repo.Configuration + "_net9.0", "Sonde.Cli.dll");
@@ -24,14 +36,16 @@ public sealed class CliDemoTests : IAsyncLifetime
         start.WorkingDirectory = Path.GetDirectoryName(Repo.SampleDll("MinimalWeb"));
         start.Environment["ASPNETCORE_URLS"] = "http://127.0.0.1:0";
         _run = Process.Start(start)!;
+        _run.OutputDataReceived += (_, e) => { if (e.Data is not null) lock (_runOutput) _runOutput.AppendLine(e.Data); };
+        _run.ErrorDataReceived += (_, e) => { if (e.Data is not null) lock (_runOutput) _runOutput.AppendLine(e.Data); };
         _run.BeginOutputReadLine();
         _run.BeginErrorReadLine();
 
         var deadline = DateTime.UtcNow.AddSeconds(30);
         while (!await ProbeClient.IsListeningAsync(_endpoint, TimeSpan.FromMilliseconds(300)))
         {
-            Assert.False(_run.HasExited, "sonde run exited early");
-            Assert.True(DateTime.UtcNow < deadline, "the app launched by sonde run never answered");
+            Assert.False(_run.HasExited, "sonde run exited early:\n" + RunOutput);
+            Assert.True(DateTime.UtcNow < deadline, "the app launched by sonde run never answered:\n" + RunOutput);
             await Task.Delay(100);
         }
     }

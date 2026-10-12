@@ -60,7 +60,8 @@ internal static class Hooks
     private const string HarmonyId = "sonde.hooks";
     private const int LikelyInlinedIlBytes = 32;
 
-    private static readonly Harmony HarmonyInstance = CreateHarmony();
+    // Created on the first hook, so a Status call (which reads Describe) never loads Harmony.
+    private static readonly Lazy<Harmony> HarmonyInstance = new(CreateHarmony);
     private static readonly ConcurrentDictionary<MethodBase, List<HookHandle>> ByMethod = new();
     private static readonly ConcurrentDictionary<Guid, HookHandle> ById = new();
     private static readonly object Gate = new();
@@ -104,7 +105,7 @@ internal static class Hooks
                 if (list.Count == 0)
                 {
                     ByMethod.TryRemove(handle.Target, out _);
-                    HarmonyInstance.Unpatch(handle.Target, HarmonyPatchType.All, HarmonyId);
+                    HarmonyInstance.Value.Unpatch(handle.Target, HarmonyPatchType.All, HarmonyId);
                 }
             }
         }
@@ -114,7 +115,8 @@ internal static class Hooks
     {
         lock (Gate)
         {
-            HarmonyInstance.UnpatchAll(HarmonyId);
+            if (HarmonyInstance.IsValueCreated)
+                HarmonyInstance.Value.UnpatchAll(HarmonyId);
             ByMethod.Clear();
             ById.Clear();
         }
@@ -147,7 +149,7 @@ internal static class Hooks
         var postfix = new HarmonyMethod(typeof(HookPatches).GetMethod(
             nonVoid ? nameof(HookPatches.PostfixWithResult) : nameof(HookPatches.PostfixNoResult),
             BindingFlags.Public | BindingFlags.Static)!);
-        HarmonyInstance.Patch(target, prefix: prefix, postfix: postfix);
+        HarmonyInstance.Value.Patch(target, prefix: prefix, postfix: postfix);
     }
 
     private static void WarnIfLikelyInlined(MethodBase target, Action<string>? warn)

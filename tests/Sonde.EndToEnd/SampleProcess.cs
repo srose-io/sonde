@@ -36,15 +36,8 @@ internal sealed class SampleProcess : IAsyncDisposable
         }
     }
 
-    /// <summary>The runtime major CI asked the samples to run on (SONDE_E2E_RUNTIME, e.g. "10.0.x"), or null.</summary>
-    public static int? RequestedRuntimeMajor
-    {
-        get
-        {
-            var requested = Environment.GetEnvironmentVariable("SONDE_E2E_RUNTIME");
-            return !string.IsNullOrEmpty(requested) && int.TryParse(requested.Split('.')[0], out var major) ? major : null;
-        }
-    }
+    /// <summary>The runtime the samples are launched on: the one this test host runs on.</summary>
+    public static int RuntimeMajor => Environment.Version.Major;
 
     /// <summary>Launches <c>dotnet &lt;sample&gt;.dll</c>. With <paramref name="probe"/> true the probe variables are set.</summary>
     public static async Task<SampleProcess> LaunchAsync(string sample, bool probe = true, string? endpoint = null, bool web = false, TimeSpan? readyTimeout = null)
@@ -57,7 +50,10 @@ internal sealed class SampleProcess : IAsyncDisposable
             RedirectStandardOutput = true,
             WorkingDirectory = Path.GetDirectoryName(Repo.SampleDll(sample)),
         };
-        start.ArgumentList.Add(Repo.SampleDll(sample));
+        // `dotnet exec --runtimeconfig` pins the sample to this test host's runtime major, whatever
+        // else the machine has installed; the hello's runtime version is asserted against it.
+        foreach (var arg in new[] { "exec", "--runtimeconfig", PinnedRuntimeConfig(sample), Repo.SampleDll(sample) })
+            start.ArgumentList.Add(arg);
         string? baseUrl = null;
         if (web)
         {
@@ -69,7 +65,6 @@ internal sealed class SampleProcess : IAsyncDisposable
             endpoint ??= NewEndpoint(sample);
             Launch.ApplyEnvironment(start.Environment!, endpoint);
         }
-        ApplyRuntimeSelection(start);
         var launched = Start(start, endpoint, baseUrl);
         await launched.WaitReadyAsync(readyTimeout ?? TimeSpan.FromSeconds(30));
         return launched;
@@ -96,7 +91,6 @@ internal sealed class SampleProcess : IAsyncDisposable
         start.Environment["DOTNET_USE_POLLING_FILE_WATCHER"] = "1";
         start.Environment["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1";
         Launch.ApplyEnvironment(start.Environment!, endpoint, null, template);
-        ApplyRuntimeSelection(start);
         var launched = Start(start, endpoint, baseUrl);
         await launched.WaitReadyAsync(TimeSpan.FromMinutes(3));
         return launched;
@@ -174,13 +168,25 @@ internal sealed class SampleProcess : IAsyncDisposable
         }
     }
 
-    private static void ApplyRuntimeSelection(ProcessStartInfo start)
+    /// <summary>The sample's own runtimeconfig with every framework pinned to this host's major and LatestPatch roll-forward.</summary>
+    private static string PinnedRuntimeConfig(string sample)
     {
-        // The samples target net8.0 and roll forward by major. On a CI cell for .NET 9 or 10 the
-        // 9 SDK's runtime is present too, so ask the host for the latest major to land on the
-        // cell's runtime; the hello's runtime version is asserted against the request.
-        if (RequestedRuntimeMajor is > 8)
-            start.Environment["DOTNET_ROLL_FORWARD"] = "LatestMajor";
+        var original = Path.ChangeExtension(Repo.SampleDll(sample), ".runtimeconfig.json");
+        var root = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(original))!.AsObject();
+        var options = root["runtimeOptions"]!.AsObject();
+        options["rollForward"] = "LatestPatch";
+        var frameworks = options["frameworks"]?.AsArray();
+        if (frameworks is null && options["framework"] is System.Text.Json.Nodes.JsonObject single)
+        {
+            options.Remove("framework");
+            frameworks = [single];
+            options["frameworks"] = frameworks;
+        }
+        foreach (var framework in frameworks!)
+            framework!["version"] = $"{RuntimeMajor}.0.0";
+        var pinned = Path.Combine(Path.GetTempPath(), $"sonde-e2e-{sample}-net{RuntimeMajor}.runtimeconfig.json");
+        File.WriteAllText(pinned, root.ToJsonString());
+        return pinned;
     }
 
     public static string NewEndpoint(string sample)

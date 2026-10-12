@@ -1,0 +1,7 @@
+<Project>
+  <!-- Copies the probe's per-runtime Harmony builds (harmony/net8.0/0Harmony.dll and so on) into
+       the consuming project's output, beside Sonde.Probe.dll, where the probe finds them. -->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)harmony/**/0Harmony.dll" Link="harmony/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>

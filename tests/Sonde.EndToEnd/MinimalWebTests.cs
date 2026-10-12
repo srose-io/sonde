@@ -18,8 +18,7 @@ public sealed class MinimalWebTests : IAsyncLifetime
         Assert.Equal(_app.Pid, hello.ProcessId);
         Assert.Equal("MinimalWeb", hello.EntryAssembly);
         Assert.Contains(hello.LoadedAssemblyPaths, p => p.EndsWith("Microsoft.AspNetCore.dll", StringComparison.Ordinal));
-        if (SampleProcess.RequestedRuntimeMajor is { } major)
-            Assert.Contains($".NET {major}.", hello.RuntimeVersion, StringComparison.Ordinal);
+        Assert.Contains($".NET {SampleProcess.RuntimeMajor}.", hello.RuntimeVersion, StringComparison.Ordinal);
     }
 
     [Fact]

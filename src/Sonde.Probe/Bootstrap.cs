@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Text.RegularExpressions;
 
 namespace Sonde.Probe;
@@ -89,7 +88,7 @@ internal static partial class Bootstrap
         if (Interlocked.CompareExchange(ref _started, 1, 0) != 0)
             return;
 
-        RegisterHarmonyResolver();
+        HarmonyBackend.EnsureConfigured();
         SondeHost.StartDiagnosticCapture();
         TryStartHarmonyDiCapture();
         SondeHost.MarkActive();
@@ -125,24 +124,6 @@ internal static partial class Bootstrap
         {
             // stderr is closed or redirected somewhere that refuses writes; nothing to be done.
         }
-    }
-
-    /// <summary>
-    /// <c>0Harmony.dll</c> ships beside <c>Sonde.Probe.dll</c>; the host does not reference it.
-    /// Resolve it from the probe's own directory so hooks work without the host carrying Harmony.
-    /// </summary>
-    private static void RegisterHarmonyResolver()
-    {
-        AssemblyLoadContext.Default.Resolving += static (context, name) =>
-        {
-            if (!string.Equals(name.Name, "0Harmony", StringComparison.OrdinalIgnoreCase))
-                return null;
-            var dir = Path.GetDirectoryName(typeof(Bootstrap).Assembly.Location);
-            if (string.IsNullOrEmpty(dir))
-                return null;
-            var path = Path.Combine(dir, "0Harmony.dll");
-            return File.Exists(path) ? context.LoadFromAssemblyPath(path) : null;
-        };
     }
 
     /// <summary>

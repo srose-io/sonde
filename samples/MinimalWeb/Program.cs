@@ -23,6 +23,10 @@ namespace MinimalWeb
     {
         private int _count;
 
+        // A hook patches the method's entry point, so a caller the JIT already inlined this tiny
+        // body into would bypass it. Real service methods are rarely small enough to inline; this
+        // one is, so say so. (`g.Hook` warns when a target looks like this.)
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
         public int Increment() => Interlocked.Increment(ref _count);
     }
 }

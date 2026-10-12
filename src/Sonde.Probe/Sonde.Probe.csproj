@@ -11,19 +11,28 @@
     <IsPackable>true</IsPackable>
     <PackageId>Sonde.Probe</PackageId>
     <Description>The Sonde in-process agent: a startup hook that runs compiled C# inside a live .NET process over a local socket.</Description>
-    <!-- Ship 0Harmony.dll beside Sonde.Probe.dll: the agent loads it from its own directory, never
-         the host's, so the host need not reference Harmony. -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <!-- The hook is loaded by path, not referenced; make the package a runtime payload, not a
-         compile reference, so a host that references it for SondeHost.Register still works. -->
-    <IncludeBuildOutput>true</IncludeBuildOutput>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lib.Harmony" />
+    <!-- Harmony is private to the probe: nothing flows to a consumer through NuGet. The probe
+         ships Harmony's own per-runtime builds under harmony/net{8,9,10}.0/ (below) and loads the
+         one matching the host at runtime, so a net9.0 consumer never hands a net8.0 host a Harmony
+         it cannot load. -->
+    <PackageReference Include="Lib.Harmony" PrivateAssets="all" ExcludeAssets="runtime" GeneratePathProperty="true" />
     <!-- Compile against the DI abstractions but never ship them: the agent binds to whichever
          copy the host already loaded, in a web app or a worker service alike. -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <!-- The per-runtime Harmony builds, copied beside the probe in every build output that references
+       it (directly or through Sonde), and packed under buildTransitive/ so a NuGet consumer gets the
+       same layout through Sonde.Probe.targets. -->
+  <ItemGroup>
+    <HarmonyFlavour Include="$(PkgLib_Harmony)/lib/net8.0/0Harmony.dll" Flavour="net8.0" />
+    <HarmonyFlavour Include="$(PkgLib_Harmony)/lib/net9.0/0Harmony.dll" Flavour="net9.0" />
+    <HarmonyFlavour Include="$(PkgLib_Harmony)/lib/net10.0/0Harmony.dll" Flavour="net10.0" />
+    <None Include="@(HarmonyFlavour)" Link="harmony/%(Flavour)/0Harmony.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" Pack="true" PackagePath="buildTransitive/harmony/%(Flavour)/" />
+    <None Include="Sonde.Probe.targets" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
 
   <ItemGroup>

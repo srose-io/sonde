@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The probe ships Harmony's per-runtime builds (`harmony/net{8,9,10}.0/`) and loads the host's,
+  instead of whichever single copy the consuming project's target framework happened to pull in;
+  a .NET 8 host given the net9.0 copy could not load it and the probe stayed dormant.
+- The Harmony resolver is registered when the probe assembly loads, not only by the startup
+  hook, so a host that reaches the listener another way can still hook. A Status request no
+  longer loads Harmony at all.
+- Test suites run on the CI cell's runtime (`SondeTestTfm`), and the end-to-end suite pins the
+  samples to that runtime through a runtimeconfig override rather than guessing from the
+  environment; the first run on the 9 cell had silently tested .NET 10.
+
 ## [0.1.0] - 2026-10-12
 
 The first release: Sonde extracted from the in-house probe it was born as, with every scar a

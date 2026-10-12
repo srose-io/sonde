@@ -2,7 +2,6 @@
   <!-- The real proof: launches the samples with the probe and evals into them. Marked EndToEnd so
        the unit gate skips it; the e2e gate and every CI matrix cell run it. -->
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>Sonde.EndToEnd</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
