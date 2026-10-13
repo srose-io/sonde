@@ -121,6 +121,4 @@ Each of these cost somebody a day once, and each is a named test.
 
 [CONTRIBUTING.md](CONTRIBUTING.md) has the build, the tests, the layout and what a good pull
 request looks like. Design changes are ADRs in [docs/decisions](docs/decisions/0001-charter.md).
-
-Sonde was born in [Loom](https://github.com/srose-io), where it shipped as an internal probe and
-was proven on real services before being extracted. MIT licensed.
+MIT licensed.
