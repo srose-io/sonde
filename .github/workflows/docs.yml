@@ -30,7 +30,7 @@ jobs:
         run: |
           dotnet tool install docfx --version 2.81.0 --tool-path artifacts/tools
           artifacts/tools/docfx docfx.json --warningsAsErrors
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: artifacts/site
 
