@@ -16,10 +16,11 @@ debugging after the one start that loads Sonde.
 
 ## Sixty seconds
 
-You need the .NET SDK (8, 9 or 10). Nothing else.
+You need the .NET SDK (8, 9 or 10). Nothing else. The demo app is in this repository:
 
 ```bash
 dotnet tool install -g Sonde.Cli
+git clone https://github.com/srose-io/sonde && cd sonde
 
 # Launch your app with the probe inside it (or: eval "$(sonde env --name web)" and launch it however you like).
 sonde run --name web -- dotnet run --project samples/MinimalWeb

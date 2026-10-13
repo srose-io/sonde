@@ -66,6 +66,9 @@ does not:
 Bump `VersionPrefix` in `Directory.Build.props`, move `[Unreleased]` in `CHANGELOG.md` to the
 version, move `PublicAPI.Unshipped.txt` into `PublicAPI.Shipped.txt`, commit, tag `vX.Y.Z`, push
 the tag. The `Release` workflow packs, publishes to NuGet and creates the GitHub release.
+It publishes through NuGet trusted publishing, so there is no API key to store or renew: the
+nuget.org policy trusts `release.yml` in this repository, and the `NUGET_USER` repository
+variable names the owning nuget.org account.
 
 ## Code of conduct
 

@@ -114,6 +114,7 @@ static Sonde.ProbeClient.RunAsync(string! endpoint, Sonde.Probe.Protocol.ProbeRe
 static Sonde.ProbeClient.StatusAsync(string! endpoint, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Sonde.Probe.Protocol.StatusResponse?>!
 static Sonde.ScriptCompiler.CachedReferenceCount.get -> int
 static Sonde.ScriptCompiler.Compile(string! script, System.Collections.Generic.IEnumerable<string!>! referencePaths, System.Collections.Generic.IEnumerable<string!>! referenceNames, string! probeAssemblyPath) -> Sonde.ScriptCompileResult!
+static Sonde.ScriptCompiler.IsManagedAssembly(string! path) -> bool
 static Sonde.ScriptCompileResult.operator !=(Sonde.ScriptCompileResult? left, Sonde.ScriptCompileResult? right) -> bool
 static Sonde.ScriptCompileResult.operator ==(Sonde.ScriptCompileResult? left, Sonde.ScriptCompileResult? right) -> bool
 static Sonde.ScriptDiagnostic.operator !=(Sonde.ScriptDiagnostic? left, Sonde.ScriptDiagnostic? right) -> bool
