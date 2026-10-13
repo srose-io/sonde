@@ -1,7 +1,9 @@
 name: Release
 
 # A tag `vX.Y.Z` packs every project at that version and publishes to NuGet.
-# The NUGET_API_KEY secret is set by a maintainer in the repository settings.
+# Publishing uses NuGet trusted publishing: nuget.org trusts this workflow file in this
+# repository and hands each run a short-lived key, so no API key is stored anywhere.
+# The maintainer's nuget.org username is the NUGET_USER repository variable.
 on:
   push:
     tags: ['v*']
@@ -14,6 +16,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write # the OIDC token nuget.org exchanges for a short-lived key
 
 jobs:
   release:
@@ -52,9 +55,16 @@ jobs:
             artifacts/package/*.nupkg
             artifacts/package/*.snupkg
 
+      - name: Log in to NuGet
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.publish
+        id: nuget
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       - name: Publish to NuGet
         if: startsWith(github.ref, 'refs/tags/v') || inputs.publish
-        run: dotnet nuget push "artifacts/package/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "artifacts/package/*.nupkg" --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: GitHub release
         if: startsWith(github.ref, 'refs/tags/v')
