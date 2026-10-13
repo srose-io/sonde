@@ -96,6 +96,19 @@ internal sealed class SampleProcess : IAsyncDisposable
         return launched;
     }
 
+    /// <summary>Waits until <paramref name="text"/> appears in the process's output, or the timeout passes.</summary>
+    public async Task<bool> WaitForOutputAsync(string text, TimeSpan timeout)
+    {
+        var deadline = DateTime.UtcNow + timeout;
+        while (!StandardError.Contains(text, StringComparison.Ordinal))
+        {
+            if (DateTime.UtcNow > deadline || _process.HasExited)
+                return StandardError.Contains(text, StringComparison.Ordinal);
+            await Task.Delay(100);
+        }
+        return true;
+    }
+
     public SondeClient Client => new(Endpoint ?? throw new InvalidOperationException("launched without the probe"));
 
     public async Task<string> GetAsync(string path)

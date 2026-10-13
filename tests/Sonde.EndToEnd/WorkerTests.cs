@@ -40,10 +40,12 @@ public sealed class WorkerTests : IAsyncLifetime
         // A second process given the same endpoint (a child that inherited it, say) must not
         // steal the socket: the first keeps answering, the second says so and goes quiet.
         await using var second = await SampleProcess.LaunchAsync("Worker", endpoint: _app.Endpoint, readyTimeout: TimeSpan.FromSeconds(5));
-        await Task.Delay(1500);
+        // The ready wait returns at once (the first probe answers), so wait for the second's own
+        // log line rather than a fixed delay: a cold CI runner can take seconds to reach it.
+        var said = await second.WaitForOutputAsync("another probe already listens", TimeSpan.FromSeconds(30));
         var hello = await _app.Client.HelloAsync();
         Assert.Equal(_app.Pid, hello.ProcessId);
-        Assert.Contains("another probe already listens", second.StandardError, StringComparison.Ordinal);
+        Assert.True(said, $"the second process never said it stayed dormant:\n{second.StandardError}");
     }
 
     private async Task<EvalResult> Eval(string script)
