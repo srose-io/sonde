@@ -4,6 +4,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Major versions are taken by hand: the probe loads into .NET 8 hosts, so its
+    # Microsoft.Extensions.* references must stay on 8.x until 8 leaves support.
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
     groups:
       all-nuget:
         patterns: ['*']
