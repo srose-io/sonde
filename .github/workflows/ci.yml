@@ -56,7 +56,10 @@ jobs:
         run: dotnet test Sonde.sln --no-build -c Release -p:SondeTestTfm=${{ matrix.tfm }} --filter "Category!=EndToEnd" --logger "trx;LogFileName=unit.trx" --results-directory artifacts/test-results
 
       - name: End-to-end tests
-        run: dotnet test tests/Sonde.EndToEnd --no-build -c Release -p:SondeTestTfm=${{ matrix.tfm }} --logger "trx;LogFileName=e2e.trx" --results-directory artifacts/test-results
+        # A hung test is killed after five minutes and named in the log, rather than holding the
+        # job until its timeout with nothing to read.
+        timeout-minutes: 10
+        run: dotnet test tests/Sonde.EndToEnd --no-build -c Release -p:SondeTestTfm=${{ matrix.tfm }} --blame-hang-timeout 5m --blame-hang-dump-type none --logger "trx;LogFileName=e2e.trx" --logger "console;verbosity=normal" --results-directory artifacts/test-results
 
       - name: Idle cost
         if: always()
