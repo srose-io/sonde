@@ -33,7 +33,7 @@ jobs:
           - dotnet: '10.0.x'
             tfm: net10.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # SourceLink needs the history
 
@@ -85,7 +85,7 @@ jobs:
     name: Pack
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-dotnet@v4
